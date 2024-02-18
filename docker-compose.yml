@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  chatgpt-next-share:
+    image: ghcr.io/zapll/chatgpt-next-share:latest
+    container_name: chatgpt-next-share
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    ports:
+      - "3001:3001"
+      - "3000:3000"
+    environment:
+      - CNS_NINJA=http://ninja:7999
+      - CNS_DATA=/data
+    depends_on:
+      - ninja
+  ninja:
+    image: gngpp/ninja:latest
+    container_name: ninja
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+    command: run --enable-webui --arkose-endpoint http://127.0.0.1:3000
+    ports:
+      - "7999:7999"
+

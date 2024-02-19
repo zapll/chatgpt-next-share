@@ -25,6 +25,38 @@ git clone https://github.com/zapll/chatgpt-next-share.git
 docker compose up
 ```
 
+`docker-compose.yml` 的简介绍
+
+```yml
+version: '3'
+
+services:
+  chatgpt-next-share:
+    image: ghcr.io/zapll/chatgpt-next-share:latest
+    container_name: chatgpt-next-share
+    restart: unless-stopped
+    volumes:
+      - ./data:/data  # 挂载数据目录, 如果你不是直接克隆的本仓库, 那么记得把仓库中 data/db.sqlite 复制到你的目录中
+    ports:
+      - "3001:3001" # 导出后台服务端口
+      - "3000:3000" # 导出代理服务端口
+    environment:
+      - CNS_NINJA=http://ninja:7999  # ninja 服务地址, 任意能连接到的地址即可, 也就是下发的 ninja 服务是非必须的
+      - CNS_DATA=/data  # 存放数据的目录, 须根上方挂载的数据目录相同, 确保该目录下有 db.sqlite 文件
+    depends_on:
+      - ninja
+  ninja:
+    image: gngpp/ninja:latest
+    container_name: ninja
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+    command: run --enable-webui --arkose-endpoint http://127.0.0.1:3000
+    # ninja 服务必须启动ui --enable-webui
+    # --arkose-endpoint 参数可以替换为你的实际域名, 否则无法使用 gpt4/gpts 等 
+
+```
+
 服务启动后, 默认情况下 
 
 - chatgpt服务: [http://127.0.0.1:3000](http://127.0.0.1:3000)

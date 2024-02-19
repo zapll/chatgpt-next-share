@@ -7,6 +7,7 @@ require (
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/klauspost/compress v1.17.6
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/samber/lo v1.39.0
 	github.com/spf13/cast v1.5.1
 	github.com/tidwall/gjson v1.17.0
 	github.com/tidwall/sjson v1.2.5
@@ -26,6 +27,7 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
+	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	muzzammil.xyz/jsonc v1.0.0 // indirect

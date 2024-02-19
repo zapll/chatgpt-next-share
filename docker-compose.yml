@@ -21,5 +21,4 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Shanghai
-    command: run --enable-webui --arkose-endpoint http://127.0.0.1:3000
-
+    command: run --enable-webui --arkose-endpoint http://172.17.0.1:7999

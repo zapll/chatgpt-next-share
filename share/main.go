@@ -8,10 +8,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/samber/lo"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 )
@@ -24,6 +26,8 @@ var offline = false
 var offlineCode = ""
 
 var accessTokenMap = sync.Map{}
+
+var blockApi = []string{}
 
 func getLoginHtml(failed bool) []byte {
 	data := map[string]interface{}{
@@ -40,6 +44,13 @@ func getLoginHtml(failed bool) []byte {
 // 自定义代理逻辑
 func handleProxy(res http.ResponseWriter, req *http.Request) {
 	Debug(fmt.Sprintf("Request: %s %s", req.Method, req.URL.Path))
+
+	if lo.Contains(blockApi, req.URL.Path) {
+		http.Error(res, "Not found", http.StatusNotFound)
+		Info("block api", req.URL.Path)
+		return
+	}
+
 	if req.URL.Path == "/offline/"+offlineCode {
 		offline = !offline
 		res.Write([]byte(fmt.Sprintf("Service now is %s", func() string {
@@ -103,6 +114,10 @@ func handleProxy(res http.ResponseWriter, req *http.Request) {
 			Error("Failed to get cookie by token", err)
 			res.Write(getLoginHtml(true))
 			return
+		}
+
+		if len(cookie) < 20 {
+			Error("Session Token is invalid", cookie)
 		}
 
 		resp, err := resty.New().R().
@@ -247,6 +262,7 @@ func main() {
 		offlineCode = randStr(10)
 		Warn("CNS_OFFLINE_CODE not set, will use", offlineCode)
 	}
+	blockApi = append(blockApi, strings.Split(os.Getenv("CNS_BLOCK_API"), ",")...)
 	http.HandleFunc("/", handleProxy)
 	Debug("CNS_DATA", root)
 	Debug("CNS_NINJA", ninja)

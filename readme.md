@@ -51,7 +51,7 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Shanghai
-    command: run --enable-webui --arkose-endpoint http://127.0.0.1:3000
+    command: run --enable-webui --arkose-endpoint http://172.17.0.1:7999
     # ninja 服务必须启动ui --enable-webui
     # --arkose-endpoint 参数可以替换为你的实际域名, 否则无法使用 gpt4/gpts 等 
 
@@ -85,7 +85,7 @@ services:
 1.  项目根目录下设置环境变量
 
 ```shell
-export CNS_DATA=$PWD
+export CNS_DATA=$PWD/data
 export CNS_NINJA=http://127.0.0.1:7999
 ```
 

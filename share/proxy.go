@@ -138,7 +138,8 @@ func handelConversation(res http.ResponseWriter, req *http.Request, proxy *httpu
 				return nil
 			}
 
-			body, _ := zstdCompare(bodyBytes)
+			ce := response.Header.Get("Content-Encoding")
+			body, _ := bodyCompare(ce, bodyBytes)
 			cid := gjson.GetBytes(body, "conversation_id").String()
 			if cid != "" {
 				_ = createConv(db.Record{
@@ -146,14 +147,13 @@ func handelConversation(res http.ResponseWriter, req *http.Request, proxy *httpu
 					"uid":   user.GetString("id"),
 					"title": "New chat",
 				})
+				go func() {
+					time.Sleep(time.Second * 1)
+					updateConvTitle(cid, req)
+				}()
 			}
 
 			response.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-
-			go func() {
-				time.Sleep(time.Second * 1)
-				updateConvTitle(cid, req)
-			}()
 		}
 		return nil
 	}
@@ -233,9 +233,23 @@ func genTitle(response *http.Response) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	ce := response.Header.Get("Content-Encoding")
+	body, err := bodyCompare(ce, bodyBytes)
+	if err != nil {
+		return "", err
+	}
+
 	response.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
-	message := gjson.GetBytes(bodyBytes, "message").String()
+	Debug("/gen_title response", ce, string(body))
+
+	title := gjson.GetBytes(body, "title").String()
+	if title != "" {
+		return title, nil
+	}
+
+	message := gjson.GetBytes(body, "message").String()
 	if !strings.Contains(message, "already has title") {
 		return "", err
 	}

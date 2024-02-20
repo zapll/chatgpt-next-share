@@ -14,7 +14,9 @@ require (
 )
 
 require (
+	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
+	github.com/google/brotli/go/cbrotli v0.0.0-20240202112650-c1362a7903dd // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect

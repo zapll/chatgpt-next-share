@@ -107,6 +107,8 @@ func handleProxy(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		Debug("login post params", params)
+
 		token := params["password"][0]
 
 		cookie, err := getCookieByToken(token)

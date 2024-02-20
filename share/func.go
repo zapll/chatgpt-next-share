@@ -3,6 +3,9 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/andybalholm/brotli"
+	"github.com/klauspost/compress/flate"
+	"github.com/klauspost/compress/gzip"
 	"github.com/klauspost/compress/zstd"
 	"io"
 	"math/rand"
@@ -87,35 +90,47 @@ func endWith(s string, prefix ...string) bool {
 	return false
 }
 
-func contains(str string, substr ...string) bool {
-	for _, s := range substr {
-		if strings.Contains(str, s) {
-			return true
+func bodyCompare(contentEncoding string, bodyBytes []byte) ([]byte, error) {
+	switch contentEncoding {
+	case "zstd":
+		decompressed := &bytes.Buffer{}
+		// 创建一个Zstd解压器
+		zr, err := zstd.NewReader(bytes.NewReader(bodyBytes))
+		if err != nil {
+			fmt.Println("Error creating Zstd reader:", err)
+			return nil, err
 		}
+		defer zr.Close()
+
+		// 将压缩数据解压到decompressed中
+		_, err = decompressed.ReadFrom(zr)
+		if err != nil {
+			fmt.Println("Error decompressing data:", err)
+			return nil, err
+		}
+
+		return decompressed.Bytes(), nil
+	case "br":
+		reader := brotli.NewReader(bytes.NewReader(bodyBytes))
+		decompressedData, err := io.ReadAll(reader)
+		if err != nil {
+			fmt.Println("Error decompressing data:", err)
+			return nil, err
+		}
+		return decompressedData, nil
+	case "gzip":
+		gr, err := gzip.NewReader(bytes.NewReader(bodyBytes))
+		if err != nil {
+			return nil, err
+		}
+		return io.ReadAll(gr)
+	case "deflate":
+		zr := flate.NewReader(bytes.NewReader(bodyBytes))
+		defer zr.Close()
+		return io.ReadAll(zr)
+	default:
+		return bodyBytes, nil
 	}
-	return false
-}
-
-func zstdCompare(bodyBytes []byte) ([]byte, error) {
-	// 创建一个bytes.Buffer来保存解压后的数据
-	decompressed := &bytes.Buffer{}
-
-	// 创建一个Zstd解压器
-	zr, err := zstd.NewReader(bytes.NewReader(bodyBytes))
-	if err != nil {
-		fmt.Println("Error creating Zstd reader:", err)
-		return nil, err
-	}
-	defer zr.Close()
-
-	// 将压缩数据解压到decompressed中
-	_, err = decompressed.ReadFrom(zr)
-	if err != nil {
-		fmt.Println("Error decompressing data:", err)
-		return nil, err
-	}
-
-	return decompressed.Bytes(), nil
 }
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

@@ -11,7 +11,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
@@ -74,15 +73,14 @@ func openai(res http.ResponseWriter, req *http.Request) (*httputil.ReverseProxy,
 			handelConversation(res, req, proxy)
 		}
 
-		re := regexp.MustCompile(`^/backend-api/conversation/([a-zA-Z0-9-]+)$`)
-		match := re.FindStringSubmatch(req.URL.Path)
-
-		if match != nil {
-			if len(match) > 1 {
-				deleteConv(match[1])
-			}
+		if startWith(req.URL.Path, "/backend-api/conversation/gen_title") {
+			handelGenTitle(res, req, proxy)
 		}
 
+		if startWith(req.URL.Path, "/backend-api/conversation/") && req.Method == http.MethodPatch {
+			cid := strings.ReplaceAll(req.URL.Path, "/backend-api/conversation/", "")
+			deleteConv(cid)
+		}
 	}
 
 	return proxy, _url, nil

@@ -118,13 +118,19 @@ func handleProxy(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		if len(cookie) < 20 {
-			Error("Session Token is invalid", cookie)
+		if len(cookie) < 1000 {
+			Error("session_token look like invalid", cookie)
 		}
+
+		Debug("login user_token", token, "session_token", cookie)
 
 		resp, err := resty.New().R().
 			SetHeader("Authorization", fmt.Sprintf("Bearer %s", cookie)).
 			Post(openaiUrl("/auth/login/token"))
+
+		if resp.StatusCode() != http.StatusOK {
+			Error("login response", resp.Status(), resp.StatusCode(), "place check you session-token")
+		}
 
 		if err != nil {
 			Error("Failed to get body", err)

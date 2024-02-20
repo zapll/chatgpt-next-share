@@ -6,17 +6,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/daodao97/goadmin/pkg/db"
-	"github.com/go-resty/resty/v2"
-	"github.com/spf13/cast"
-	"github.com/tidwall/gjson"
 	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"time"
+
+	"github.com/daodao97/goadmin/pkg/db"
+	"github.com/go-resty/resty/v2"
+	"github.com/spf13/cast"
+	"github.com/tidwall/gjson"
 )
 
 func rebuildReq(req *http.Request) {
@@ -71,6 +73,16 @@ func openai(res http.ResponseWriter, req *http.Request) (*httputil.ReverseProxy,
 		if req.URL.Path == "/backend-api/conversation" && req.Method == http.MethodPost {
 			handelConversation(res, req, proxy)
 		}
+
+		re := regexp.MustCompile(`^/backend-api/conversation/([a-zA-Z0-9-]+)$`)
+		match := re.FindStringSubmatch(req.URL.Path)
+
+		if match != nil {
+			if len(match) > 1 {
+				deleteConv(match[1])
+			}
+		}
+
 	}
 
 	return proxy, _url, nil

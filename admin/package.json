@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "dev": "bun run --hot --watch src/index.js",
+    "build": "bun build ./src/index.js --outdir ../service/admin --target=bun"
+  },
+  "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^2.3.2",
+    "dayjs": "^1.11.10",
+    "hono": "^3.11.8",
+    "jose": "^5.2.0",
+    "short-uuid": "^4.2.2",
+    "sql-bricks": "^3.0.1",
+    "sql-bricks-sqlite": "^1.0.0"
+  }
+}

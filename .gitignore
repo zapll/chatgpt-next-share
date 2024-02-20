@@ -1,0 +1,4 @@
+.idea
+service
+share/db.sqlite
+data

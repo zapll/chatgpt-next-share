@@ -65,10 +65,6 @@ func openai(res http.ResponseWriter, req *http.Request) (*httputil.ReverseProxy,
 			return nil, nil, errors.New("authorization is empty")
 		}
 
-		if startWith(req.URL.Path, "/backend-api/conversation") && req.Method == http.MethodPatch {
-			// delete conversation
-		}
-
 		if startWith(req.URL.Path, "/backend-api/conversation/gen_title") {
 			handelGenTitle(res, req, proxy)
 		}
@@ -79,7 +75,7 @@ func openai(res http.ResponseWriter, req *http.Request) (*httputil.ReverseProxy,
 
 		if startWith(req.URL.Path, "/backend-api/conversation/") && req.Method == http.MethodPatch {
 			cid := strings.ReplaceAll(req.URL.Path, "/backend-api/conversation/", "")
-			deleteConv(cid)
+			_ = deleteConv(cid)
 		}
 	}
 

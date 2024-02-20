@@ -48,6 +48,11 @@ func updateConv(cid string, conv db.Record) error {
 	return err
 }
 
+func deleteConv(cid string) error {
+	_, err := db.New("conversation").Delete(db.WhereEq("cid", cid))
+	return err
+}
+
 func updateConvMsgNum(cid string) error {
 	db, _ := db.DB("default")
 	_, err := db.Exec("update conversation set msg_num = msg_num + 1 where cid = ?", cid)

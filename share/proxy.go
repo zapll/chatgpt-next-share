@@ -73,10 +73,6 @@ func openai(res http.ResponseWriter, req *http.Request) (*httputil.ReverseProxy,
 			handelConversation(res, req, proxy)
 		}
 
-		if startWith(req.URL.Path, "/backend-api/conversation/gen_title") {
-			handelGenTitle(res, req, proxy)
-		}
-
 		if startWith(req.URL.Path, "/backend-api/conversation/") && req.Method == http.MethodPatch {
 			cid := strings.ReplaceAll(req.URL.Path, "/backend-api/conversation/", "")
 			deleteConv(cid)
